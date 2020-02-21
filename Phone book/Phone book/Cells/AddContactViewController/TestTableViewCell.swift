@@ -10,10 +10,12 @@ import UIKit
 
 class TestTableViewCell: UITableViewCell {
 
-    @IBOutlet weak var textField: UITextField?
+    @IBOutlet weak var textField: UITextField!
+
     
     override func awakeFromNib() {
         super.awakeFromNib()
     }
     
+
 }

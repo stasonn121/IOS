@@ -17,6 +17,7 @@ class ViewAndEditorContactViewController: UIViewController {
     var contact: Contact? = Contact()
     var image: UIImage?
     //MARK: - Private variable
+    
     //MARK: - Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,7 +26,7 @@ class ViewAndEditorContactViewController: UIViewController {
     }
     private func initialization() {
         contactImage.image = image
-        contactImage.layer.cornerRadius = 50
+        contactImage.layer.cornerRadius = contactImage.bounds.width / 2
         if let name = contact?.name, let sername = contact?.sername {
             contactName.text = name + " " + sername
         }
@@ -50,10 +51,12 @@ extension ViewAndEditorContactViewController: UITableViewDataSource, UITableView
         switch indexPath.row {
         case 0:
             cell?.textLabel?.text = "Telephone"
-            cell?.detailTextLabel?.text = contact?.telephoneNumber
+            cell?.detailTextLabel?.text = recordArray(array: contact?.telephoneNumber ?? [""])
+            cell?.detailTextLabel?.numberOfLines = contact?.telephoneNumber.count ?? 0
         case 1:
             cell?.textLabel?.text = "Email"
-            cell?.detailTextLabel?.text = contact?.email
+            cell?.detailTextLabel?.text = recordArray(array: contact?.email ?? [""])
+            cell?.detailTextLabel?.numberOfLines = contact?.email.count ?? 0
         case 2:
             cell?.textLabel?.text = "Work"
            cell?.detailTextLabel?.text = contact?.company
@@ -67,9 +70,22 @@ extension ViewAndEditorContactViewController: UITableViewDataSource, UITableView
 }
 
 extension ViewAndEditorContactViewController {
+    func recordArray(array: [String]) -> String
+    {
+        var outputString: String = ""
+        for index in 0 ..< array.count {
+            outputString += array[index] + (index == array.count - 1 ? "" : "\n")
+        }
+        return outputString
+    }
+}
+
+extension ViewAndEditorContactViewController {
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         guard segue.identifier == "editContact",
-           let editController = segue.destination as? AddContactViewController else { return }
+            let editController = (segue.destination as? UINavigationController)?.viewControllers.first as? AddContactViewController else { return }
+        segue.destination.modalPresentationStyle = .fullScreen
         editController.createContact = false
         editController.human = contact
     }

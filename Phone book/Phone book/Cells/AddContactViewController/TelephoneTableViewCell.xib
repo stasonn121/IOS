@@ -39,7 +39,7 @@
                     <constraint firstItem="Qte-gx-t2f" firstAttribute="centerY" secondItem="dyk-i9-cok" secondAttribute="centerY" id="IyI-MS-4kp"/>
                     <constraint firstAttribute="bottom" secondItem="dyk-i9-cok" secondAttribute="bottom" constant="3" id="K1L-E0-Ac7"/>
                     <constraint firstItem="dyk-i9-cok" firstAttribute="leading" secondItem="Qte-gx-t2f" secondAttribute="trailing" id="Ukz-ox-SjZ"/>
-                    <constraint firstItem="Qte-gx-t2f" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" constant="-55" id="XGb-a7-PmS"/>
+                    <constraint firstItem="Qte-gx-t2f" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" constant="-42" id="XGb-a7-PmS"/>
                     <constraint firstItem="dyk-i9-cok" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="3" id="oWt-E2-hTg"/>
                     <constraint firstAttribute="trailing" secondItem="dyk-i9-cok" secondAttribute="trailing" id="uFY-tS-EhU"/>
                 </constraints>

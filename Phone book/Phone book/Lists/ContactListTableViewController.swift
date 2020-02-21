@@ -10,7 +10,9 @@ import UIKit
 
 class ContactListTableViewController: UITableViewController {
     var humans: [Contact] = []
-    var counterContact = 0
+    var findHumans: [Contact] = []
+    var isEmptySearchBar = true
+    @IBOutlet weak var searchBar: UISearchBar!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,21 +22,28 @@ class ContactListTableViewController: UITableViewController {
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
-        return humans.last?.section ?? 0
+        if isEmptySearchBar { return humans.last?.section ?? 0}
+        else { return findHumans.last?.section ?? 0 }
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return counterCellsInThisSection(array: humans, numberSection: section + 1)
+        if isEmptySearchBar { return counterCellsInThisSection(array: humans, numberSection: section + 1)}
+        else { return counterCellsInThisSection(array: findHumans, numberSection: section + 1) }
     }
 
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let contact = tableView.dequeueReusableCell(withIdentifier: "Contact", for: indexPath) as! StyleTableViewCell
         
-        if indexPath.section == humans[findSection(array: humans, section: indexPath.section + 1) + indexPath.row].section - 1 {
+        
+        if isEmptySearchBar && indexPath.section == humans[findSection(array: humans, section: indexPath.section + 1) + indexPath.row].section - 1  {
             contact.secondNameUser?.text = humans[findSection(array: humans, section: indexPath.section + 1) + indexPath.row].name
             contact.firstNameUser?.text = humans[findSection(array: humans, section: indexPath.section + 1) + indexPath.row].sername
+        }
+        else if !isEmptySearchBar && indexPath.section == findHumans[findSection(array: findHumans, section: indexPath.section + 1) + indexPath.row].section - 1  {
+            contact.secondNameUser?.text = findHumans[findSection(array: findHumans, section: indexPath.section + 1) + indexPath.row].name
+            contact.firstNameUser?.text = findHumans[findSection(array: findHumans, section: indexPath.section + 1) + indexPath.row].sername
         }
         
         return contact
@@ -66,7 +75,7 @@ extension ContactListTableViewController {
     @IBAction func cancelToContactsViewController(_ seque: UIStoryboardSegue){ }
     @IBAction func savePlayerDetail(_ segue: UIStoryboardSegue) {
         guard
-            segue.identifier == "saveId",
+        segue.identifier == "saveId",
             let addOrEditContactViewController = segue.source as? AddContactViewController,
             let contact = addOrEditContactViewController.human
             else { return }
@@ -181,56 +190,22 @@ extension ContactListTableViewController {
         }
         
         if segue.identifier == "createContact",
-            let createController = segue.destination as? AddContactViewController {
-            
+            let createController = (segue.destination as? UINavigationController)?.viewControllers.first as? AddContactViewController {
             createController.createContact = true
         }
     }
 }
 
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
+extension ContactListTableViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText.isEmpty {
+            isEmptySearchBar = true
+        } else {
+            let search = searchText.lowercased()
+            findHumans = humans.filter { $0.sername == search || $0.name == search }
+            findHumans = numerationContact(array: findHumans)
+            isEmptySearchBar = false
+        }
+        tableView.reloadData()
     }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
-
+}

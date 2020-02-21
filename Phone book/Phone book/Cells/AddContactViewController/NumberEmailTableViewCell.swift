@@ -22,12 +22,6 @@ class NumberEmailTableViewCell: UITableViewCell {
         super.awakeFromNib()
         // Initialization code
     }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
-    }
     
     @IBAction private func addNewCell(_ sender: Any) {
         delegate?.onClickCell(self)

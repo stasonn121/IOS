@@ -13,22 +13,26 @@ class AddContactViewController: UIViewController {
     // MARK: - Public variables
     @IBOutlet weak var addInformationTableView: UITableView!
     @IBOutlet weak var contactImage: UIImageView!
+    @IBOutlet weak var savedButton: UIBarButtonItem!
     var human: Contact? = Contact()
     var createContact: Bool?
     let imagePicker = UIImagePickerController()
     // MARK: - Private variables
     private var firstSectionCounter = 1
     private var secondSectionCounter = 1
+    private var counter = 0
     // MARK: - Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        savedButton.isEnabled = false
         configureTableView()
     }
     
     // MARK: - Configure
     private func configureTableView() {
-        imagePicker.delegate = self
         contactImage.image = human?.photo
+        contactImage.layer.cornerRadius = contactImage.bounds.width / 2
+        imagePicker.delegate = self
         addInformationTableView.dataSource = self
         addInformationTableView.delegate = self
         addInformationTableView.register(UINib(nibName: String(describing: TestTableViewCell.self), bundle: nil),
@@ -38,7 +42,6 @@ class AddContactViewController: UIViewController {
         addInformationTableView.register(UINib(nibName: String(describing: TelephoneTableViewCell.self), bundle: nil),
                                          forCellReuseIdentifier: UIConstants.CellIdentifiers.deleteCellId)
     }
-    
     // MARK: - Actions
    
     @IBAction func addPhoto(_ sender: Any) {
@@ -96,6 +99,8 @@ class AddContactViewController: UIViewController {
                 default:
                     break
                 }
+                cell.textField.delegate = self
+                
                 return cell
             }
             if indexPath.row == 0 && indexPath.section == 1 && firstSectionCounter == 1 {
@@ -119,6 +124,7 @@ class AddContactViewController: UIViewController {
                 
                 cell.numberPhoneTextField?.placeholder = "Your telephone"
                 cell.delegate = self
+                cell.numberPhoneTextField.delegate = self
                 
                 return cell
             }
@@ -127,6 +133,7 @@ class AddContactViewController: UIViewController {
                 
                 cell.numberPhoneTextField?.placeholder = "Your email"
                 cell.delegate = self
+                cell.numberPhoneTextField.delegate = self
                 
                 return cell
             }
@@ -137,7 +144,7 @@ class AddContactViewController: UIViewController {
         func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
             return 40
         }
-        
+
         // MARK: - Send data in ContactViewController
         override func prepare(for segue: UIStoryboardSegue, sender: Any?)  {
                if segue.identifier == "saveId",
@@ -145,16 +152,16 @@ class AddContactViewController: UIViewController {
                 let sername = (addInformationTableView.cellForRow(at: IndexPath(row: 1, section: 0)) as! TestTableViewCell).textField?.text
                {
                     let company = (addInformationTableView.cellForRow(at: IndexPath(row: 2, section: 0)) as! TestTableViewCell).textField?.text ?? ""
-                    var telephones: String = ""
-                    var emails: String = ""
+                    var telephones: [String] = [""]
+                    var emails: [String] = [""]
                     let id = human?.id
                     
                     if firstSectionCounter != 1 {
-                        telephones = (addInformationTableView.cellForRow(at: IndexPath(row: 0, section: 1)) as! TelephoneTableViewCell).numberPhoneTextField?.text ?? ""
+                        telephones = arrayData(tableView: addInformationTableView, section: 1) as! [String]
                     }
                     
                     if secondSectionCounter != 1 {
-                        emails = (addInformationTableView.cellForRow(at: IndexPath(row: 0, section: 2)) as! TelephoneTableViewCell).numberPhoneTextField?.text ?? ""
+                        emails = arrayData(tableView: addInformationTableView, section: 2) as! [String]
                     }
                     
                 human = Contact(name: name, sername: sername, company: company, telephoneNumber: telephones, email: emails, photo: contactImage.image, id: id)
@@ -209,13 +216,47 @@ class AddContactViewController: UIViewController {
                 }
             }
         }
+        
+        
     }
-extension AddContactViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        if let pickedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
-            contactImage.image = pickedImage
+
+    extension AddContactViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate
+    {
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let pickedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+                contactImage.image = pickedImage
+            }
+            dismiss(animated: true, completion: nil)
         }
-        dismiss(animated: true, completion: nil)
+    }
+
+    extension AddContactViewController: UITextFieldDelegate {
+        func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+            textField.resignFirstResponder()
+            return true
+        }
+        
+        func textFieldDidEndEditing(_ textField: UITextField) {
+            let nameTextField = (addInformationTableView.cellForRow(at: IndexPath(row: 0, section: 0)) as! TestTableViewCell).textField
+            let sernameTextField = (addInformationTableView.cellForRow(at: IndexPath(row: 1, section: 0)) as! TestTableViewCell).textField
+            
+            if nameTextField?.text?.isEmpty == false && sernameTextField?.text?.isEmpty == false {
+                savedButton.isEnabled = true
+            } else { savedButton.isEnabled = false }
+        }
+   
+    }
+
+extension AddContactViewController {
+    func arrayData(tableView: UITableView, section: Int) -> [String?]
+    {
+        let end = tableView.numberOfRows(inSection: section)
+        var array: [String?] = []
+        for index in 0 ..< end - 1 {
+            let item = (tableView.cellForRow(at: IndexPath(row: index, section: section)) as! TelephoneTableViewCell).numberPhoneTextField.text
+            array.append(item)
+        }
+        return array
     }
 }
 

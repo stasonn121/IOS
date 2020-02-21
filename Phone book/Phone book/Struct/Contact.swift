@@ -13,8 +13,8 @@ struct Contact
     var name: String = ""
     var sername: String = ""
     var company: String = ""
-    var telephoneNumber: String = ""
-    var email: String = ""
+    var telephoneNumber: [String] = [""]
+    var email: [String] = [""]
     var photo: UIImage? = #imageLiteral(resourceName: "userContact")
     var section: Int = 0
     var cellInSection: Int = 0
