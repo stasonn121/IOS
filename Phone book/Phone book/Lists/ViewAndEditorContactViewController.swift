@@ -14,7 +14,7 @@ class ViewAndEditorContactViewController: UIViewController {
     @IBOutlet weak var viewAndEditTableView: UITableView!
     @IBOutlet weak var contactImage: UIImageView!
     @IBOutlet weak var contactName: UILabel!
-    var contact: Contact? = Contact()
+    var contact: Contact = Contact()
     var image: UIImage?
     //MARK: - Private variable
     
@@ -27,9 +27,11 @@ class ViewAndEditorContactViewController: UIViewController {
     private func initialization() {
         contactImage.image = image
         contactImage.layer.cornerRadius = contactImage.bounds.width / 2
-        if let name = contact?.name, let sername = contact?.sername {
-            contactName.text = name + " " + sername
-        }
+        
+        let name = contact.name
+        let sername = contact.sername
+        contactName.text = name + " " + sername
+        
     }
     
 }
@@ -37,29 +39,34 @@ class ViewAndEditorContactViewController: UIViewController {
 extension ViewAndEditorContactViewController: UITableViewDataSource, UITableViewDelegate
 {
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        return 2
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 3
+        if section == 0 { return 3 }
+        else { return 1 }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: UIConstants.CellIdentifiers.standartCellId)
         
-        switch indexPath.row {
-        case 0:
+        switch indexPath {
+        case IndexPath(row: 0, section: 0):
             cell?.textLabel?.text = "Telephone"
-            cell?.detailTextLabel?.text = recordArray(array: contact?.telephoneNumber ?? [""])
-            cell?.detailTextLabel?.numberOfLines = contact?.telephoneNumber.count ?? 0
-        case 1:
+            cell?.detailTextLabel?.text = recordArray(array: contact.telephoneNumber)
+            cell?.detailTextLabel?.numberOfLines = contact.telephoneNumber.count
+        case IndexPath(row: 1, section: 0):
             cell?.textLabel?.text = "Email"
-            cell?.detailTextLabel?.text = recordArray(array: contact?.email ?? [""])
-            cell?.detailTextLabel?.numberOfLines = contact?.email.count ?? 0
-        case 2:
+            cell?.detailTextLabel?.text = recordArray(array: contact.email)
+            cell?.detailTextLabel?.numberOfLines = contact.email.count
+        case IndexPath(row: 2, section: 0):
             cell?.textLabel?.text = "Work"
-           cell?.detailTextLabel?.text = contact?.company
+            cell?.detailTextLabel?.text = contact.company
+        case IndexPath(row: 0, section: 1):
+            cell?.textLabel?.text = "Delete"
+            cell?.textLabel?.textColor = .red
+            cell?.detailTextLabel?.text = nil
         default:
             break
         }
@@ -67,6 +74,12 @@ extension ViewAndEditorContactViewController: UITableViewDataSource, UITableView
         return cell!
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        if indexPath == IndexPath(row: 0, section: 1) {
+            performSegue(withIdentifier: "deleteContact", sender: self)
+        }
+    }
 }
 
 extension ViewAndEditorContactViewController {
@@ -85,9 +98,10 @@ extension ViewAndEditorContactViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         guard segue.identifier == "editContact",
             let editController = (segue.destination as? UINavigationController)?.viewControllers.first as? AddContactViewController else { return }
-        segue.destination.modalPresentationStyle = .fullScreen
-        editController.createContact = false
-        editController.human = contact
+        
+            segue.destination.modalPresentationStyle = .fullScreen
+            editController.createContact = false
+            editController.human = contact
     }
 }
 

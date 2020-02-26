@@ -20,19 +20,31 @@ class AddContactViewController: UIViewController {
     // MARK: - Private variables
     private var firstSectionCounter = 1
     private var secondSectionCounter = 1
-    private var counter = 0
     // MARK: - Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        savedButton.isEnabled = false
         configureTableView()
     }
     
     // MARK: - Configure
     private func configureTableView() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillAppear), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        
+        savedButton.isEnabled = false
+        
         contactImage.image = human?.photo
         contactImage.layer.cornerRadius = contactImage.bounds.width / 2
         imagePicker.delegate = self
+        
+        let theTapInTable = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard(sender:)))
+        theTapInTable.cancelsTouchesInView = false
+        addInformationTableView.addGestureRecognizer(theTapInTable)
+        
+        let theTapInSageArea = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard(sender:)))
+        theTapInSageArea.cancelsTouchesInView = false
+        view.addGestureRecognizer(theTapInSageArea)
+        
         addInformationTableView.dataSource = self
         addInformationTableView.delegate = self
         addInformationTableView.register(UINib(nibName: String(describing: TestTableViewCell.self), bundle: nil),
@@ -63,6 +75,10 @@ class AddContactViewController: UIViewController {
         
         present(alert, animated: true, completion: nil)
     }
+    
+    @IBAction func tapToHideKeyboard(_ sender: UITapGestureRecognizer) {
+        view.endEditing(true)
+    }
 }
     // MARK: - UITableViewDataSource, UITableViewDelegate
     extension AddContactViewController : UITableViewDataSource, UITableViewDelegate
@@ -86,8 +102,8 @@ class AddContactViewController: UIViewController {
         
         func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
            
-            if indexPath.section == 0 {
-                let cell = tableView.dequeueReusableCell(withIdentifier: UIConstants.CellIdentifiers.myCellId) as! TestTableViewCell
+            if indexPath.section == 0,
+                let cell = tableView.dequeueReusableCell(withIdentifier: UIConstants.CellIdentifiers.myCellId) as? TestTableViewCell {
             
                 switch indexPath.row {
                 case 0:
@@ -96,6 +112,7 @@ class AddContactViewController: UIViewController {
                     cell.textField?.placeholder = "Last name"
                 case 2:
                     cell.textField?.placeholder = "Company"
+                    cell.textField.returnKeyType = .done
                 default:
                     break
                 }
@@ -103,24 +120,24 @@ class AddContactViewController: UIViewController {
                 
                 return cell
             }
-            if indexPath.row == 0 && indexPath.section == 1 && firstSectionCounter == 1 {
-                let cell = tableView.dequeueReusableCell(withIdentifier: UIConstants.CellIdentifiers.numberEmailId) as! NumberEmailTableViewCell
+            if indexPath.row == 0 && indexPath.section == 1 && firstSectionCounter == 1,
+                let cell = tableView.dequeueReusableCell(withIdentifier: UIConstants.CellIdentifiers.numberEmailId) as? NumberEmailTableViewCell {
                 
                 cell.informationLabel?.text = "add phone"
                 cell.delegate = self
                 
                 return cell
             }
-            if indexPath.row == 0 && indexPath.section == 2 && secondSectionCounter == 1 {
-                let cell = tableView.dequeueReusableCell(withIdentifier: UIConstants.CellIdentifiers.numberEmailId) as! NumberEmailTableViewCell
+            if indexPath.row == 0 && indexPath.section == 2 && secondSectionCounter == 1,
+                let cell = tableView.dequeueReusableCell(withIdentifier: UIConstants.CellIdentifiers.numberEmailId) as? NumberEmailTableViewCell {
                 
                 cell.informationLabel?.text = "add email"
                 cell.delegate = self
                 
                 return cell
             }
-            if indexPath.row == 0 && indexPath.section == 1 && firstSectionCounter != 1 {
-                let cell = tableView.dequeueReusableCell(withIdentifier: UIConstants.CellIdentifiers.deleteCellId) as! TelephoneTableViewCell
+            if indexPath.row == 0 && indexPath.section == 1 && firstSectionCounter != 1,
+                let cell = tableView.dequeueReusableCell(withIdentifier: UIConstants.CellIdentifiers.deleteCellId) as? TelephoneTableViewCell {
                 
                 cell.numberPhoneTextField?.placeholder = "Your telephone"
                 cell.delegate = self
@@ -128,10 +145,12 @@ class AddContactViewController: UIViewController {
                 
                 return cell
             }
-            if indexPath.row == 0 && indexPath.section == 2 && secondSectionCounter != 1 {
-                let cell = tableView.dequeueReusableCell(withIdentifier: UIConstants.CellIdentifiers.deleteCellId) as! TelephoneTableViewCell
+            if indexPath.row == 0 && indexPath.section == 2 && secondSectionCounter != 1,
+                let cell = tableView.dequeueReusableCell(withIdentifier: UIConstants.CellIdentifiers.deleteCellId) as? TelephoneTableViewCell {
                 
                 cell.numberPhoneTextField?.placeholder = "Your email"
+                cell.numberPhoneTextField.keyboardType = .default
+                cell.numberPhoneTextField.returnKeyType = .done
                 cell.delegate = self
                 cell.numberPhoneTextField.delegate = self
                 
@@ -148,13 +167,13 @@ class AddContactViewController: UIViewController {
         // MARK: - Send data in ContactViewController
         override func prepare(for segue: UIStoryboardSegue, sender: Any?)  {
                if segue.identifier == "saveId",
-                let name = (addInformationTableView.cellForRow(at: IndexPath(row: 0, section: 0)) as! TestTableViewCell).textField?.text,
-                let sername = (addInformationTableView.cellForRow(at: IndexPath(row: 1, section: 0)) as! TestTableViewCell).textField?.text
+                let name = (addInformationTableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? TestTableViewCell)?.textField?.text,
+                let sername = (addInformationTableView.cellForRow(at: IndexPath(row: 1, section: 0)) as? TestTableViewCell)?.textField?.text,
+                let id = human?.id
                {
-                    let company = (addInformationTableView.cellForRow(at: IndexPath(row: 2, section: 0)) as! TestTableViewCell).textField?.text ?? ""
+                    let company = (addInformationTableView.cellForRow(at: IndexPath(row: 2, section: 0)) as? TestTableViewCell)?.textField?.text ?? ""
                     var telephones: [String] = [""]
                     var emails: [String] = [""]
-                    let id = human?.id
                     
                     if firstSectionCounter != 1 {
                         telephones = arrayData(tableView: addInformationTableView, section: 1) as! [String]
@@ -183,6 +202,7 @@ class AddContactViewController: UIViewController {
                 secondSectionCounter += 1
                 tableView.insertRows(at: [IndexPath(row: 0, section: 2)], with: .automatic)
             }
+            
         }
     }
 
@@ -216,8 +236,6 @@ class AddContactViewController: UIViewController {
                 }
             }
         }
-        
-        
     }
 
     extension AddContactViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate
@@ -232,19 +250,34 @@ class AddContactViewController: UIViewController {
 
     extension AddContactViewController: UITextFieldDelegate {
         func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-            textField.resignFirstResponder()
+            let nameTextField = (addInformationTableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? TestTableViewCell)?.textField
+            let sernameTextField = (addInformationTableView.cellForRow(at: IndexPath(row: 1, section: 0)) as? TestTableViewCell)?.textField
+            let companyTextField = (addInformationTableView.cellForRow(at: IndexPath(row: 2, section: 0)) as? TestTableViewCell)?.textField
+            
+            if nameTextField == textField {
+                sernameTextField?.becomeFirstResponder()
+            }
+            if sernameTextField == textField {
+                companyTextField?.becomeFirstResponder()
+            } else {
+                textField.resignFirstResponder()
+            }
             return true
         }
         
+        @objc func dismissKeyboard(sender: UITapGestureRecognizer) {
+            view.endEditing(true)
+        }
+        
         func textFieldDidEndEditing(_ textField: UITextField) {
-            let nameTextField = (addInformationTableView.cellForRow(at: IndexPath(row: 0, section: 0)) as! TestTableViewCell).textField
-            let sernameTextField = (addInformationTableView.cellForRow(at: IndexPath(row: 1, section: 0)) as! TestTableViewCell).textField
+            let nameTextField = (addInformationTableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? TestTableViewCell)?.textField
+            let sernameTextField = (addInformationTableView.cellForRow(at: IndexPath(row: 1, section: 0)) as? TestTableViewCell)?.textField
             
             if nameTextField?.text?.isEmpty == false && sernameTextField?.text?.isEmpty == false {
                 savedButton.isEnabled = true
             } else { savedButton.isEnabled = false }
         }
-   
+
     }
 
 extension AddContactViewController {
@@ -253,11 +286,25 @@ extension AddContactViewController {
         let end = tableView.numberOfRows(inSection: section)
         var array: [String?] = []
         for index in 0 ..< end - 1 {
-            let item = (tableView.cellForRow(at: IndexPath(row: index, section: section)) as! TelephoneTableViewCell).numberPhoneTextField.text
+            let item = (tableView.cellForRow(at: IndexPath(row: index, section: section)) as? TelephoneTableViewCell)?.numberPhoneTextField.text
             array.append(item)
         }
         return array
     }
+}
+
+extension AddContactViewController {
+    @objc func keyboardWillAppear (_ notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            let keyboardHeight = keyboardSize.height
+            addInformationTableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardHeight, right: 0)
+        }
+    }
+
+    @objc func keyboardWillHide() {
+        addInformationTableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+    }
+    
 }
 
     // MARK: - UIConstants

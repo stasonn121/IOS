@@ -18,5 +18,5 @@ struct Contact
     var photo: UIImage? = #imageLiteral(resourceName: "userContact")
     var section: Int = 0
     var cellInSection: Int = 0
-    var id: Int?
+    var id: Int = 0
 }

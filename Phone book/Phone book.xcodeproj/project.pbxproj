@@ -19,7 +19,7 @@
 		CE60D57823F4680E00E944AB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CE60D57723F4680E00E944AB /* Assets.xcassets */; };
 		CE60D57B23F4680E00E944AB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CE60D57923F4680E00E944AB /* LaunchScreen.storyboard */; };
 		CE60D58423F46B5500E944AB /* StyleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE60D58323F46B5500E944AB /* StyleTableViewCell.swift */; };
-		CE99F35C23F5AEE700F18760 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CE99F35B23F5AEE700F18760 /* Main.storyboard */; };
+		CE76750C2405593D00AED3DC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CE76750A2405593D00AED3DC /* Main.storyboard */; };
 		CE9CDBC423F6C61400313AEC /* TelephoneTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9CDBC223F6C61400313AEC /* TelephoneTableViewCell.swift */; };
 		CE9CDBC523F6C61400313AEC /* TelephoneTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = CE9CDBC323F6C61400313AEC /* TelephoneTableViewCell.xib */; };
 		CEB0109023F46D4F00536BB5 /* ContactListTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEB0108F23F46D4F00536BB5 /* ContactListTableViewController.swift */; };
@@ -40,7 +40,7 @@
 		CE60D57A23F4680E00E944AB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CE60D57C23F4680E00E944AB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CE60D58323F46B5500E944AB /* StyleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleTableViewCell.swift; sourceTree = "<group>"; };
-		CE99F35B23F5AEE700F18760 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = ../../../.Trash/Main.storyboard; sourceTree = "<group>"; };
+		CE76750B2405593D00AED3DC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		CE9CDBC223F6C61400313AEC /* TelephoneTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelephoneTableViewCell.swift; sourceTree = "<group>"; };
 		CE9CDBC323F6C61400313AEC /* TelephoneTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TelephoneTableViewCell.xib; sourceTree = "<group>"; };
 		CEB0108F23F46D4F00536BB5 /* ContactListTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactListTableViewController.swift; sourceTree = "<group>"; };
@@ -128,7 +128,7 @@
 				CE5BF24D23F595A90057B3A6 /* Lists */,
 				CE5BF24C23F58FBF0057B3A6 /* Cells */,
 				CE60D57923F4680E00E944AB /* LaunchScreen.storyboard */,
-				CE99F35B23F5AEE700F18760 /* Main.storyboard */,
+				CE76750A2405593D00AED3DC /* Main.storyboard */,
 				CE60D57723F4680E00E944AB /* Assets.xcassets */,
 				CE60D56E23F4680800E944AB /* AppDelegate.swift */,
 				CE60D57023F4680800E944AB /* SceneDelegate.swift */,
@@ -196,9 +196,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE60D57B23F4680E00E944AB /* LaunchScreen.storyboard in Resources */,
-				CE99F35C23F5AEE700F18760 /* Main.storyboard in Resources */,
 				CE9CDBC523F6C61400313AEC /* TelephoneTableViewCell.xib in Resources */,
 				CE5A87E023F6A5C000AEFC53 /* NumberEmailTableViewCell.xib in Resources */,
+				CE76750C2405593D00AED3DC /* Main.storyboard in Resources */,
 				CE5BF24B23F58C3B0057B3A6 /* TestTableViewCell.xib in Resources */,
 				CE60D57823F4680E00E944AB /* Assets.xcassets in Resources */,
 			);
@@ -233,6 +233,14 @@
 				CE60D57A23F4680E00E944AB /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		CE76750A2405593D00AED3DC /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CE76750B2405593D00AED3DC /* Base */,
+			);
+			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

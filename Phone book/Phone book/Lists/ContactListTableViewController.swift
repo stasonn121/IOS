@@ -11,37 +11,41 @@ import UIKit
 class ContactListTableViewController: UITableViewController {
     var humans: [Contact] = []
     var findHumans: [Contact] = []
-    var isEmptySearchBar = true
     @IBOutlet weak var searchBar: UISearchBar!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        configure()
     }
-
+    
+    // MARK: - Configure
+    func configure() {
+        let theTapInTable = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard(sender:)))
+        theTapInTable.cancelsTouchesInView = false
+        tableView.addGestureRecognizer(theTapInTable)
+    }
+    
+    @objc func dismissKeyboard(sender: UITapGestureRecognizer) {
+        view.endEditing(true)
+    }
+    
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
-        if isEmptySearchBar { return humans.last?.section ?? 0}
-        else { return findHumans.last?.section ?? 0 }
+        return findHumans.last?.section ?? 0
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        if isEmptySearchBar { return counterCellsInThisSection(array: humans, numberSection: section + 1)}
-        else { return counterCellsInThisSection(array: findHumans, numberSection: section + 1) }
+        // #warning Incomplete implementation, return the number of row
+        return counterCellsInThisSection(array: findHumans, numberSection: section + 1)
     }
 
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let contact = tableView.dequeueReusableCell(withIdentifier: "Contact", for: indexPath) as! StyleTableViewCell
         
-        
-        if isEmptySearchBar && indexPath.section == humans[findSection(array: humans, section: indexPath.section + 1) + indexPath.row].section - 1  {
-            contact.secondNameUser?.text = humans[findSection(array: humans, section: indexPath.section + 1) + indexPath.row].name
-            contact.firstNameUser?.text = humans[findSection(array: humans, section: indexPath.section + 1) + indexPath.row].sername
-        }
-        else if !isEmptySearchBar && indexPath.section == findHumans[findSection(array: findHumans, section: indexPath.section + 1) + indexPath.row].section - 1  {
+        if  indexPath.section == findHumans[findSection(array: findHumans, section: indexPath.section + 1) + indexPath.row].section - 1  {
             contact.secondNameUser?.text = findHumans[findSection(array: findHumans, section: indexPath.section + 1) + indexPath.row].name
             contact.firstNameUser?.text = findHumans[findSection(array: findHumans, section: indexPath.section + 1) + indexPath.row].sername
         }
@@ -54,13 +58,11 @@ class ContactListTableViewController: UITableViewController {
         let view = UIView(frame: CGRect(x: 0, y: 0, width: tableView.bounds.height, height: 20))
         view.backgroundColor = UIColor.lightGray
         
-        let label = UILabel(frame: CGRect(x: 10, y: 6, width: 14, height: 14))
+        let label = UILabel(frame: CGRect(x: 10, y: 2, width: 20, height: 20))
         label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
         
-        let letterSection = findSection(array: humans, section: section + 1)
-        if let char = humans[letterSection].sername.first {
-            label.text = String(char)
-        }
+        let letterSection = findSection(array: findHumans, section: section + 1)
+        if let char = findHumans[letterSection].sername.first { label.text = String(char) }
                
         view.addSubview(label)
         return view
@@ -72,10 +74,22 @@ class ContactListTableViewController: UITableViewController {
 }
 
 extension ContactListTableViewController {
-    @IBAction func cancelToContactsViewController(_ seque: UIStoryboardSegue){ }
+    @IBAction func cancelToContactsViewController(_ seque: UIStoryboardSegue){
+       if seque.identifier == "deleteContact",
+        let viewAndEditorContactVC = seque.source as? ViewAndEditorContactViewController {
+        
+            let contactId = viewAndEditorContactVC.contact.id
+            humans.remove(at: contactId)
+            humans = humans.sorted(by: {$0.sername < $1.sername})
+            humans = numerationContact(array: humans)
+        }
+        findHumans = humans
+        tableView.reloadData()
+        
+    }
+    
     @IBAction func savePlayerDetail(_ segue: UIStoryboardSegue) {
-        guard
-        segue.identifier == "saveId",
+        guard segue.identifier == "saveId",
             let addOrEditContactViewController = segue.source as? AddContactViewController,
             let contact = addOrEditContactViewController.human
             else { return }
@@ -84,11 +98,14 @@ extension ContactListTableViewController {
             humans.append(contact)
             humans = humans.sorted(by: {$0.sername < $1.sername})
             humans = numerationContact(array: humans)
+            findHumans = humans
         }
-        if addOrEditContactViewController.createContact == false, let idEditContact = contact.id {
+        if addOrEditContactViewController.createContact == false {
+            let idEditContact = contact.id
             humans[idEditContact] = contact
             humans = humans.sorted(by: {$0.sername < $1.sername})
             humans = numerationContact(array: humans)
+            findHumans = humans
         }
     tableView.reloadData()
     }
@@ -168,7 +185,7 @@ extension ContactListTableViewController {
     //MARK: Находит контакт по положению в табл
     func findContactByIndex(indexPath: IndexPath) -> Contact? {
         var contact: Contact?
-        for index in humans {
+        for index in findHumans {
             if index.section - 1 == indexPath.section && index.cellInSection - 1 == indexPath.row {
                 contact = index
                 break
@@ -182,11 +199,14 @@ extension ContactListTableViewController {
 extension ContactListTableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "viewThisContact",
-           let editorController = segue.destination as? ViewAndEditorContactViewController,
-           let locationCell = tableView.indexPathForSelectedRow {
+            let editorController = segue.destination as? ViewAndEditorContactViewController,
+            let locationCell = tableView.indexPathForSelectedRow,
+            let contact = findContactByIndex(indexPath: locationCell),
+            let image = editorController.contact.photo
+        {
             
-            editorController.contact = findContactByIndex(indexPath: locationCell)
-            editorController.image = editorController.contact?.photo ?? #imageLiteral(resourceName: "userContact")
+            editorController.contact = contact
+            editorController.image = image
         }
         
         if segue.identifier == "createContact",
@@ -198,14 +218,13 @@ extension ContactListTableViewController {
 
 extension ContactListTableViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchText.isEmpty {
-            isEmptySearchBar = true
-        } else {
-            let search = searchText.lowercased()
-            findHumans = humans.filter { $0.sername == search || $0.name == search }
-            findHumans = numerationContact(array: findHumans)
-            isEmptySearchBar = false
+        findHumans = searchText.isEmpty ? humans : humans.filter { (item: Contact ) -> Bool in
+            // If dataItem matches the searchText, return true to include it
+            return item.sername.range(of: searchText, options: .caseInsensitive, range: nil, locale: nil) != nil || item.name.range(of: searchText, options: .caseInsensitive, range: nil, locale: nil) != nil
         }
+        findHumans = findHumans.sorted(by: {$0.sername < $1.sername})
+        findHumans = numerationContact(array: findHumans)
         tableView.reloadData()
     }
 }
+
